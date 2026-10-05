@@ -2,26 +2,24 @@ package main
 
 import (
 	"flag"
-	"fmt"
+	"log"
 	"net"
 )
 
 func main() {
-	port := 6730
-	addr := flag.String("addr", "localhost", "Address to listen on")
+	addr := flag.String("addr", "127.0.0.1:6380", "address to listen on")
 	flag.Parse()
-	fmt.Println("Starting server on :", *addr+":"+fmt.Sprint(port))
 
-	listener, err := net.Listen("tcp", *addr+":"+fmt.Sprint(port))
+	listener, err := net.Listen("tcp", *addr)
 	if err != nil {
-		fmt.Println("Error starting server:", err)
-		return
+		log.Fatal("starting server:", err)
 	}
+	log.Println("listening on", listener.Addr())
 
 	for {
 		conn, err := listener.Accept()
 		if err != nil {
-			fmt.Println("Error accepting connection:", err)
+			log.Println("accepting connection:", err)
 			continue
 		}
 
@@ -31,9 +29,9 @@ func main() {
 
 func handleConnection(conn net.Conn) {
 	defer conn.Close()
-	fmt.Println("Client connected:", conn.RemoteAddr())
+	log.Println("client connected:", conn.RemoteAddr())
 	_, err := conn.Write([]byte("+PONG\r\n"))
 	if err != nil {
-		fmt.Println("Error writing to connection:", err)
+		log.Println("writing response:", err)
 	}
 }
